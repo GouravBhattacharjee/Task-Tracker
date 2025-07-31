@@ -10,6 +10,7 @@ type Props = {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   goToLogin: () => void;
+  readOnlyEmail?: boolean;
 };
 
 const RegisterForm: React.FC<Props> = ({
@@ -17,6 +18,7 @@ const RegisterForm: React.FC<Props> = ({
   handleChange,
   handleSubmit,
   goToLogin,
+  readOnlyEmail
 }) => (
   <form onSubmit={handleSubmit}>
     <input
@@ -25,6 +27,7 @@ const RegisterForm: React.FC<Props> = ({
       value={form.first_name}
       onChange={handleChange}
       className="w-full px-4 py-2 mb-4 border rounded-md"
+      required
     />
     <input
       name="last_name"
@@ -32,6 +35,7 @@ const RegisterForm: React.FC<Props> = ({
       value={form.last_name}
       onChange={handleChange}
       className="w-full px-4 py-2 mb-4 border rounded-md"
+      required
     />
     <input
       name="email"
@@ -40,6 +44,8 @@ const RegisterForm: React.FC<Props> = ({
       value={form.email}
       onChange={handleChange}
       className="w-full px-4 py-2 mb-4 border rounded-md"
+      readOnly={readOnlyEmail} // prevent tampering
+      required
     />
     <input
       name="plain_password"
@@ -48,6 +54,7 @@ const RegisterForm: React.FC<Props> = ({
       value={form.plain_password}
       onChange={handleChange}
       className="w-full px-4 py-2 mb-4 border rounded-md"
+      required
     />
     <button
       type="submit"

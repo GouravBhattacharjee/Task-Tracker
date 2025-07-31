@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { userLogin, userRegister, userForgotPassword } from '../services/AuthService';
-import AuthForm from '../components/Form/AuthForm';
+import { userLogin, userRegister, userForgotPassword, userGoogleLogin } from '../services/AuthService';
+import LoginForm from '../components/Form/LoginForm';
 import RegisterForm from '../components/Form/RegisterForm';
 import ForgotPasswordForm from '../components/Form/ForgotPasswordForm';
+import axios from 'axios';
+import { CredentialResponse } from '@react-oauth/google';
 
 const initialForm = {
   first_name: '',
@@ -12,6 +14,7 @@ const initialForm = {
   email: '',
   plain_password: '',
   role_id: 3,
+  provider: 'local' as 'local' | 'google'
 };
 
 const AuthPage = () => {
@@ -22,13 +25,15 @@ const AuthPage = () => {
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
 
+  // Redirect if already logged in
   useEffect(() => {
     if (user) navigate('/projects');
   }, [user, navigate]);
 
+  // Prevent scrollbars on body
   useEffect(() => {
-    // Prevent scrollbars on body when AuthPage is mounted
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -42,11 +47,17 @@ const AuthPage = () => {
   };
 
   const capitalizeName = (name: string) =>
-    name.toLowerCase().split(' ').filter(Boolean).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    name
+      .toLowerCase()
+      .split(' ')
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
 
   const resetForm = () => setForm(initialForm);
 
-  // Handler for AuthForm submit
+  // --- Handlers ---
+
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -54,12 +65,15 @@ const AuthPage = () => {
     try {
       const data = await userLogin({ email: form.email, plain_password: form.plain_password });
       login(data.access_token);
-    } catch (err: any) {
-      setError(err.message || 'Login failed.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data?.detail || 'Login failed');
+      } else {
+        setError('Login failed');
+      }
     }
   };
 
-  // Handler for RegisterForm submit
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -69,29 +83,71 @@ const AuthPage = () => {
         ...form,
         first_name: capitalizeName(form.first_name),
         last_name: capitalizeName(form.last_name),
-        created_by_email: user!.email,
-        modified_by_email: user!.email
+        provider: form.provider || 'local'
       });
       setMessage('Registration successful! Please log in.');
       setMode('login');
       resetForm();
-    } catch (err: any) {
-      setError(err.message || 'Registration failed.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data?.detail || 'Registration failed');
+      } else {
+        setError('Registration failed');
+      }
     }
   };
 
-  // Handler for ForgotPasswordForm submit
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setMessage(null);
     try {
-      await userForgotPassword({ email: form.email, modified_by_email: user!.email });
+      await userForgotPassword({ email: form.email });
       setMessage('Password reset email sent. Please check your inbox.');
       setMode('login');
       resetForm();
-    } catch (err: any) {
-      setError(err.message || 'Failed to send reset email.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data?.detail || 'Failed to send reset email.');
+      } else {
+        setError('Failed to send reset email.');
+      }
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      setError("Google login failed: No credential received");
+      return;
+    }
+
+    try {
+      setLoadingGoogle(true);
+      const data = await userGoogleLogin(credentialResponse.credential);
+
+      if (data.status === "register") {
+        setForm({
+          ...form,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          plain_password: "",
+          role_id: initialForm.role_id,
+          provider: "google"
+        });
+        setMode("register");
+        setLoadingGoogle(false);
+      } else if (data.access_token) {
+        login(data.access_token);
+        setLoadingGoogle(false);
+      }
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data?.detail || 'Google login failed');
+      } else {
+        setError('Google login failed');
+      }
+      setLoadingGoogle(false);
     }
   };
 
@@ -99,16 +155,16 @@ const AuthPage = () => {
     <div className="h-screen flex items-center justify-center bg-gray-100 p-6">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 text-center">
         <h2 className="text-2xl font-semibold mb-6">
-          {mode === "login" && "Log in to Your Account"}
-          {mode === "register" && "Register a New Account"}
-          {mode === "forgot" && "Forgot Password"}
+          {mode === 'login' && 'Log in to Your Account'}
+          {mode === 'register' && 'Register a New Account'}
+          {mode === 'forgot' && 'Forgot Password'}
         </h2>
 
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
         {message && <p className="text-green-600 text-sm mb-4">{message}</p>}
 
-        {mode === "login" && (
-          <AuthForm
+        {mode === 'login' && (
+          <LoginForm
             form={{ email: form.email, plain_password: form.plain_password }}
             handleChange={handleChange}
             handleSubmit={handleLoginSubmit}
@@ -124,16 +180,19 @@ const AuthPage = () => {
               setError(null);
               setMessage(null);
             }}
+            onGoogleSuccess={handleGoogleSuccess}
+            onGoogleError={(msg) => setError(msg)}
+            loadingGoogle={loadingGoogle}
           />
         )}
 
-        {mode === "register" && (
+        {mode === 'register' && (
           <RegisterForm
             form={{
               first_name: form.first_name,
               last_name: form.last_name,
               email: form.email,
-              plain_password: form.plain_password
+              plain_password: form.plain_password,
             }}
             handleChange={handleChange}
             handleSubmit={handleRegisterSubmit}
@@ -143,10 +202,11 @@ const AuthPage = () => {
               setError(null);
               setMessage(null);
             }}
+            readOnlyEmail={!!form.email} // read-only if Google prefilled
           />
         )}
 
-        {mode === "forgot" && (
+        {mode === 'forgot' && (
           <ForgotPasswordForm
             email={form.email}
             handleChange={handleChange}

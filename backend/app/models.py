@@ -92,6 +92,7 @@ class UserBase(SQLModel):
     first_name: str = Field(max_length=30)
     last_name: str = Field(max_length=30)
     email: str = Field(index=True, unique=True, max_length=100)
+    provider: str = Field(max_length=30)
     role_id: int = Field(foreign_key="roles.role_id")
     user_active: bool = True
     created_by_email: str = "system"

@@ -7,7 +7,7 @@ import UsersPage from './pages/UsersPage';
 import RolesPage from './pages/RolesPage';
 import AuthPage from './pages/AuthPage';
 import TaskStatusPage from './pages/TaskStatusPage';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function AppRoutes() {
@@ -63,12 +63,10 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <NavBar />
-        <AppRoutes />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <NavBar />
+      <AppRoutes />
+    </Router>
   );
 }
 

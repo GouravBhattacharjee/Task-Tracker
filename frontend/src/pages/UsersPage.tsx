@@ -70,7 +70,7 @@ const UsersPage = () => {
       if (editingId) {
         await updateUser({ ...form, user_id: editingId, modified_by_email: user!.email });
       } else {
-        await userRegister({ ...form, created_by_email: user!.email, modified_by_email: user!.email });
+        await userRegister({ ...form, provider: 'local', created_by_email: user!.email, modified_by_email: user!.email });
       }
       setForm(initialForm);
       setEditingId(null);

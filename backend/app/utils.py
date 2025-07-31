@@ -1,5 +1,5 @@
+from fastapi import HTTPException, status, Header, Depends, Cookie, Response
 from jwt import encode, decode, ExpiredSignatureError, InvalidTokenError
-from fastapi import HTTPException, status, Header, Depends, Cookie
 from models import ReadUser, JWTPayloadBase, JWTPayload
 from datetime import datetime, timedelta, timezone
 from sqlmodel import SQLModel, Session, select
@@ -138,6 +138,32 @@ def refresh_token(refresh_token: str = Cookie(...), session: Session = Depends(g
     })
 
     return {"access_token": new_access_token}
+
+
+def issue_tokens_and_set_cookie(response: Response, db_user: ReadUser, role_name: str, role_permissions: str):
+    token_data = {
+        "user_id": str(db_user.user_id),
+        "first_name": db_user.first_name,
+        "last_name": db_user.last_name,
+        "email": db_user.email,
+        "role_name": role_name,
+        "role_permissions": role_permissions
+    }
+
+    access_token = create_access_token(token_data)
+    refresh_token_cookie = create_refresh_token(token_data)
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token_cookie,
+        httponly=True,
+        secure=True,
+        samesite="Strict",
+        max_age=int(JWT_REFRESH_TOKEN_EXPIRE_DAYS) * 24 * 60 * 60
+    )
+
+    return access_token
+
 
 def require_permissions_any(permissions: list[str]):
     def decorator(jwt_user: JWTPayload = Depends(verify_access_token)):

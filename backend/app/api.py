@@ -1,7 +1,9 @@
-from models import ReadProject, ReadRole, ReadRolePermissions, ReadTask, ReadTaskStatus, ReadUser, FilteredReadUser, WriteProject, WriteRole, WriteTask, WriteTaskStatus, WriteUser, Login, ChangePassword, JWTPayloadBase, JWTPayload
-from utils import write_to_db, read_from_db, update_in_db, hash_password, verify_password, create_access_token, create_refresh_token, refresh_token, require_permissions_any
+from models import ReadProject, ReadRole, ReadRolePermissions, ReadTask, ReadTaskStatus, ReadUser, FilteredReadUser, WriteProject, WriteRole, WriteTask, WriteTaskStatus, WriteUser, Login, ChangePassword, JWTPayload
+from utils import write_to_db, read_from_db, update_in_db, hash_password, verify_password, refresh_token, issue_tokens_and_set_cookie, require_permissions_any
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlmodel import SQLModel, Session, select
+from google.auth.transport import requests
+from google.oauth2 import id_token
 from database import get_session
 from dotenv import load_dotenv
 from typing import Sequence
@@ -43,27 +45,52 @@ def login(user: Login, response: Response, session: Session = Depends(get_sessio
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    token_data: JWTPayloadBase = {
-        "user_id": str(db_user.user_id),
-        "first_name": db_user.first_name,
-        "last_name": db_user.last_name,
-        "email": db_user.email,
-        "role_name": role_name,
-        "role_permissions": role_permissions
-    }
-    access_token = create_access_token(token_data)
-    refresh_token = create_refresh_token(token_data)
-
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="Strict",
-        max_age=JWT_REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
-    )
-
+    access_token = issue_tokens_and_set_cookie(response, db_user, role_name, role_permissions)
     return {"access_token": access_token}
+
+
+@router.post("/login/google")
+def login_google(payload: dict, response: Response, session: Session = Depends(get_session)):
+    token = payload.get("token")  # ID token from Google frontend
+
+    if not token:
+        raise HTTPException(status_code=400, detail="Google token missing")
+
+    try:
+        # Verify Google ID token
+        idinfo = id_token.verify_oauth2_token(
+            token,
+            requests.Request(),
+            os.getenv("GOOGLE_CLIENT_ID")
+        )
+
+        email = idinfo.get("email")
+        first_name = idinfo.get("given_name")
+        last_name = idinfo.get("family_name")
+
+        # Check if user exists
+        statement = select(ReadUser, ReadRole.role_name, ReadRole.role_permissions)\
+            .join(ReadRole, ReadUser.role_id == ReadRole.role_id)\
+            .where(ReadUser.email == email)
+
+        result = session.exec(statement).first()
+
+        if result:
+            # Existing user → login
+            db_user, role_name, role_permissions = result
+            access_token = issue_tokens_and_set_cookie(response, db_user, role_name, role_permissions)
+            return {"access_token": access_token}
+
+        # New user → return prefill data to frontend
+        return {
+            "status": "register",
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Google login failed: {e}")
 
 
 @router.post("/register", response_model=FilteredReadUser, status_code=status.HTTP_201_CREATED)
