@@ -52,7 +52,7 @@ const RegisterForm: React.FC<Props> = ({
       value={form.email}
       onChange={handleChange}
       className="w-full px-4 py-2 mb-4 border rounded-md"
-      readOnly={readOnlyEmail} // prevent tampering
+      readOnly={readOnlyEmail}
       required
     />
     <input
