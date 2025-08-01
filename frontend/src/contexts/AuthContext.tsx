@@ -8,13 +8,11 @@ type DecodedTokenRaw = {
   last_name: string;
   email: string;
   role_name: string;
-  role_permissions: string;
-  iat: number;
-  exp: number;
+  role_permissions: string; // raw string from JWT
 };
 
 type DecodedToken = DecodedTokenRaw & {
-  role_permissions_parsed: string[];
+  role_permissions_parsed: string[]; // parsed array
 };
 
 type AuthContextType = {
@@ -95,8 +93,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 //   email: string;
 //   role_name: string;
 //   role_permissions: string; // raw string from JWT
-//   iat: number;
-//   exp: number;
 // };
 
 // type DecodedToken = DecodedTokenRaw & {

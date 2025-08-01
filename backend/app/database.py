@@ -1,12 +1,11 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
-from sqlmodel import text, Session
 from logging_config import logger
 from fastapi import HTTPException
 from dotenv import load_dotenv
 from typing import Generator
-from pandas import read_sql
+from sqlmodel import Session
 import os
 
 # Load environment variables from .env file
@@ -21,7 +20,6 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 
 def get_db_connection_string() -> str:
-    #username, password = get_keyvault_secret(KV_SQL_USERNAME, KV_SQL_PASSWORD)
     db_conn_str = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     return db_conn_str
 
@@ -48,20 +46,6 @@ def get_session() -> Generator[Session, None, None]:
         yield session
     finally:
         session.close()
-
-
-def execute_sql_query(query, name=None, params=None, pool_size=None, max_overflow=None):
-    if pool_size is None and max_overflow is None:
-        engine = get_db_engine()
-    else:
-        engine = get_db_engine(pool_size=pool_size, max_overflow=max_overflow)
-
-    with engine.connect() as conn:
-        df = read_sql(text(query), conn, params=params)
-
-        if name is None:
-            return df
-        return name, df
 
 
 engine = get_db_engine()

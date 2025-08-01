@@ -30,6 +30,6 @@ export const updateRole = async (payload: Partial<RoleModel> & Required<Pick<Rol
 };
 
 export const fetchRolePermissions = async () => {
-  const response = await axiosInstance.get(`/api/rolepermissions`);
+  const response = await axiosInstance.get(`/api/role_permissions`);
   return response.data;
 };

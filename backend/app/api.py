@@ -1,24 +1,18 @@
 from models import ReadProject, ReadRole, ReadRolePermissions, ReadTask, ReadTaskStatus, ReadUser, FilteredReadUser, WriteProject, WriteRole, WriteTask, WriteTaskStatus, WriteUser, Login, ChangePassword, JWTPayload
 from utils import write_to_db, read_from_db, update_in_db, hash_password, verify_password, refresh_token, issue_tokens_and_set_cookie, require_permissions_any
 from fastapi import APIRouter, Depends, status, HTTPException, Response
-from sqlmodel import SQLModel, Session, select
 from google.auth.transport import requests
+from sqlmodel import Session, select
+from datetime import date, datetime
 from google.oauth2 import id_token
 from database import get_session
-from dotenv import load_dotenv
-from typing import Sequence
 import os
 
 router = APIRouter()
 
-# Load environment variables from .env file
-load_dotenv()
-
-JWT_REFRESH_TOKEN_EXPIRE_DAYS = os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS")
-
 
 @router.get("/health")
-def health():
+def health() -> dict[str, str]:
     return {"message": "Health is good"}
 
 
@@ -26,7 +20,7 @@ router.post("/refresh-token")(refresh_token)
 
 
 @router.post("/login")
-def login(user: Login, response: Response, session: Session = Depends(get_session)):
+def login(user: Login, response: Response, session: Session = Depends(get_session)) -> dict[str, str]:
     statement = (
         select(ReadUser, ReadRole.role_name, ReadRole.role_permissions)
         .join(ReadRole, ReadUser.role_id == ReadRole.role_id)
@@ -50,7 +44,7 @@ def login(user: Login, response: Response, session: Session = Depends(get_sessio
 
 
 @router.post("/login/google")
-def login_google(payload: dict, response: Response, session: Session = Depends(get_session)):
+def login_google(payload: dict, response: Response, session: Session = Depends(get_session)) -> dict[str, str]:
     token = payload.get("token")  # ID token from Google frontend
 
     if not token:
@@ -58,7 +52,7 @@ def login_google(payload: dict, response: Response, session: Session = Depends(g
 
     try:
         # Verify Google ID token
-        idinfo = id_token.verify_oauth2_token(
+        idinfo: dict = id_token.verify_oauth2_token(
             token,
             requests.Request(),
             os.getenv("GOOGLE_CLIENT_ID")
@@ -94,7 +88,7 @@ def login_google(payload: dict, response: Response, session: Session = Depends(g
 
 
 @router.post("/register", response_model=FilteredReadUser, status_code=status.HTTP_201_CREATED)
-def create_user(user: WriteUser, session: Session = Depends(get_session)):
+def create_user(user: WriteUser, session: Session = Depends(get_session)) -> dict[str, str | int | bool | datetime]:
     filter = [ReadUser.email == user.email]
     existing_user: ReadUser | None = read_from_db(
         session, ReadUser, filter, True)
@@ -114,7 +108,7 @@ def create_user(user: WriteUser, session: Session = Depends(get_session)):
 
 
 @router.post("/change_password")
-def change_password(data: ChangePassword, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_taskstatus", "view_project", "view_task"]))):
+def change_password(data: ChangePassword, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_taskstatus", "view_project", "view_task"]))) -> dict[str, str]:
     user = session.get(ReadUser, data.user_id)
     if not user:
         raise HTTPException(
@@ -138,35 +132,33 @@ def change_password(data: ChangePassword, session: Session = Depends(get_session
 
 
 @router.get("/users", response_model=list[FilteredReadUser])
-def get_users(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_user"]))):
+def get_users(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_user"]))) -> list[ReadUser] | None:
     response = read_from_db(session, ReadUser, [ReadUser.user_active == 1])
     return response
 
 
 @router.get("/users/{user_id}", response_model=FilteredReadUser)
-def get_user(user_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_user"]))):
+def get_user(user_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_user"]))) -> ReadUser | None:
     user = read_from_db(session, ReadUser, [
                         ReadUser.user_id == user_id], fetch_first=True)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
 
 
 @router.post("/update_user")
-def update_user(data: ReadUser, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_user"]))):
+def update_user(data: ReadUser, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_user"]))) -> dict[str, str]:
     if isinstance(data, ReadUser):
         data: list[ReadUser] = [data]
 
     data_json = [d.model_dump(
         exclude={"created_by_email", "created_on_date"}) for d in data]
     response = update_in_db(session, ReadUser, data_json)
-
     return response
 
 
 @router.post("/roles", response_model=ReadRole, status_code=status.HTTP_201_CREATED)
-def create_role(user: WriteRole, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_role"]))):
+def create_role(user: WriteRole, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_role"]))) -> dict[str, str | int | bool | datetime]:
     role_data = user.model_dump()
     db_user = ReadRole(**role_data)
     response = write_to_db(session, db_user)
@@ -174,156 +166,143 @@ def create_role(user: WriteRole, session: Session = Depends(get_session), jwt_us
 
 
 @router.get("/roles", response_model=list[ReadRole])
-def get_roles(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_role"]))) -> Sequence[SQLModel]:
+def get_roles(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_role"]))) -> list[ReadRole] | None:
     response = read_from_db(session, ReadRole, [ReadRole.role_active == 1])
     return response
 
 
 @router.get("/roles/{role_id}", response_model=ReadRole)
-def get_role(role_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_role"]))):
+def get_role(role_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_role"]))) -> ReadRole | None:
     response = read_from_db(
         session, ReadRole, [ReadRole.role_id == role_id], fetch_first=True)
     return response
 
 
 @router.post("/update_role")
-def update_role(data: ReadRole, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_role"]))):
+def update_role(data: ReadRole, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_role"]))) -> dict[str, str]:
     if isinstance(data, ReadRole):
         data: list[ReadRole] = [data]
 
     data_json = [d.model_dump(
         exclude={"created_by_email", "created_on_date"}) for d in data]
     response = update_in_db(session, ReadRole, data_json)
-
     return response
 
 
-@router.get("/rolepermissions", response_model=list[ReadRolePermissions])
-def get_role_permissions(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_role"]))) -> Sequence[SQLModel]:
+@router.get("/role_permissions", response_model=list[ReadRolePermissions])
+def get_role_permissions(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_role"]))) -> list[ReadRolePermissions] | None:
     response = read_from_db(session, ReadRolePermissions)
     return response
 
 
 @router.post("/projects", response_model=ReadProject, status_code=status.HTTP_201_CREATED)
-def create_project(project: WriteProject, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_project"]))):
+def create_project(project: WriteProject, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_project"]))) -> dict[str, str | int | bool | date | datetime]:
     data = ReadProject(
         **project.model_dump()
     )
     response = write_to_db(session, data)
-
     return response
 
 
 @router.get("/projects", response_model=list[ReadProject])
-def get_projects(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_project"]))):
-    response = read_from_db(session, ReadProject, [
-                            ReadProject.project_active == 1])
+def get_projects(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_project"]))) -> list[ReadProject] | None:
+    response = read_from_db(session, ReadProject, [ReadProject.project_active == 1])
     return response
 
 
 @router.get("/projects/{project_id}", response_model=ReadProject)
-def get_project(project_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_project"]))):
-    response = read_from_db(session, ReadProject, [
-                            ReadProject.project_id == project_id], fetch_first=True)
+def get_project(project_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_project"]))) -> ReadProject | None:
+    response = read_from_db(session, ReadProject, [ReadProject.project_id == project_id], fetch_first=True)
     return response
 
 
 @router.post("/update_project")
-def update_project(data: ReadProject, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_project"]))):
+def update_project(data: ReadProject, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_project"]))) -> dict[str, str]:
     if isinstance(data, ReadProject):
         data: list[ReadProject] = [data]
 
     data_json = [d.model_dump(
         exclude={"created_by_email", "created_on_date"}) for d in data]
     response = update_in_db(session, ReadProject, data_json)
-
     return response
 
 
-@router.get("/projects/{project_id}/tasks")
-def get_tasks_by_project_id(project_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_project", "view_task"]))):
+@router.get("/projects/{project_id}/tasks", response_model=list[ReadTask])
+def get_tasks_by_project_id(project_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_project", "view_task"]))) -> list[ReadTask] | None:
     response = read_from_db(session, ReadTask, [ReadTask.task_active == 1, ReadTask.project_id == project_id])
     return response
 
 
 @router.post("/tasks", response_model=ReadTask, status_code=status.HTTP_201_CREATED)
-def create_task(task: WriteTask, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_task"]))):
+def create_task(task: WriteTask, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_task"]))) -> dict[str, str | int | bool | date | datetime]:
     data = ReadTask(
         **task.model_dump()
     )
     response = write_to_db(session, data)
-
     return response
 
 
 @router.get("/tasks", response_model=list[ReadTask])
-def get_tasks(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_task"]))):
+def get_tasks(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_task"]))) -> list[ReadTask] | None:
     response = read_from_db(session, ReadTask, [ReadTask.task_active == 1])
     return response
 
 
 @router.get("/tasks/{task_id}", response_model=ReadTask)
-def get_task(task_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_task"]))):
-    response = read_from_db(
-        session, ReadTask, [ReadTask.task_id == task_id], fetch_first=True)
+def get_task(task_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_task"]))) -> ReadTask | None:
+    response = read_from_db(session, ReadTask, [ReadTask.task_id == task_id], fetch_first=True)
     return response
 
 
 @router.post("/update_task")
-def update_task(data: ReadTask, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_task"]))):
+def update_task(data: ReadTask, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_task"]))) -> dict[str, str]:
     if isinstance(data, ReadTask):
         data: list[ReadTask] = [data]
 
     data_json = [d.model_dump(
         exclude={"created_by_email", "created_on_date"}) for d in data]
     response = update_in_db(session, ReadTask, data_json)
-
     return response
 
 
 @router.post("/update_taskstatus_in_task")
-def update_task(data: ReadTask, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_taskstatus_in_task", "update_task"]))):
+def update_task(data: ReadTask, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_taskstatus_in_task", "update_task"]))) -> dict[str, str]:
     if isinstance(data, ReadTask):
         data: list[ReadTask] = [data]
 
     data_json = [d.model_dump(
         include={"task_id", "task_status_id", "modified_by_email", "modified_on_date"}) for d in data]
     response = update_in_db(session, ReadTask, data_json)
-
     return response
 
 
 @router.post("/taskstatus", response_model=ReadTaskStatus, status_code=status.HTTP_201_CREATED)
-def create_taskstatus(task: WriteTaskStatus, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_taskstatus"]))):
+def create_taskstatus(task: WriteTaskStatus, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["create_taskstatus"]))) -> dict[str, str | int | bool | datetime]:
     data = ReadTaskStatus(
         **task.model_dump()
     )
     response = write_to_db(session, data)
-
     return response
 
 
 @router.get("/taskstatus", response_model=list[ReadTaskStatus])
-def get_taskstatuses(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_taskstatus"]))):
-    response = read_from_db(session, ReadTaskStatus, [
-                            ReadTaskStatus.task_status_active == 1])
+def get_taskstatuses(session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_taskstatus"]))) -> list[ReadTaskStatus] | None:
+    response = read_from_db(session, ReadTaskStatus, [ReadTaskStatus.task_status_active == 1])
     return response
 
 
 @router.get("/taskstatus/{task_status_id}", response_model=ReadTaskStatus)
-def get_taskstatus(task_status_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_taskstatus"]))):
-    response = read_from_db(session, ReadTaskStatus, [
-                            ReadTaskStatus.task_status_id == task_status_id], fetch_first=True)
+def get_taskstatus(task_status_id: int, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["view_taskstatus"]))) -> ReadTaskStatus | None:
+    response = read_from_db(session, ReadTaskStatus, [ReadTaskStatus.task_status_id == task_status_id], fetch_first=True)
     return response
 
 
 @router.post("/update_taskstatus")
-def update_taskstatus(data: ReadTaskStatus, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_taskstatus"]))):
+def update_taskstatus(data: ReadTaskStatus, session: Session = Depends(get_session), jwt_user: JWTPayload = Depends(require_permissions_any(["update_taskstatus"]))) -> dict[str, str]:
     if isinstance(data, ReadTaskStatus):
         data: list[ReadTaskStatus] = [data]
 
     data_json = [d.model_dump(
         exclude={"created_by_email", "created_on_date"}) for d in data]
     response = update_in_db(session, ReadTaskStatus, data_json)
-
     return response

@@ -1,8 +1,7 @@
 from sqlmodel import SQLModel, Field, Relationship
-from pydantic import model_validator
+from pydantic import BaseModel, model_validator
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
-from typing import TypedDict
 
 
 def blank_to_zero_validator(model_class: type[SQLModel], fields: list[str]) -> type[SQLModel]:
@@ -22,7 +21,7 @@ def get_time() -> datetime:
     return datetime.now(ZoneInfo("Asia/Kolkata"))  # "America/New_York"
 
 
-class JWTPayloadBase(TypedDict):
+class JWTPayloadBase(BaseModel):
     user_id: int
     first_name: str
     last_name: str
@@ -34,9 +33,10 @@ class JWTPayloadBase(TypedDict):
 class JWTPayload(JWTPayloadBase):
     iat: int
     exp: int
+    type: str
 
 
-class Login(SQLModel):
+class Login(BaseModel):
     email: str
     plain_password: str
 
@@ -82,7 +82,7 @@ class ReadTaskStatus(WriteTaskStatus, table=True):
     tasks: list["ReadTask"] = Relationship(back_populates="status")
 
 
-class ChangePassword(SQLModel):
+class ChangePassword(BaseModel):
     user_id: int
     old_password_plain: str
     new_password_plain: str
