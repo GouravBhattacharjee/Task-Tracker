@@ -1,5 +1,6 @@
 import React from "react";
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
+import RegisterButton from "../Buttons/RegisterButton";
 
 type Props = {
   form: {
@@ -63,12 +64,8 @@ const RegisterForm: React.FC<Props> = ({
       className="w-full px-4 py-2 mb-4 border rounded-md"
       required
     />
-    <button
-      type="submit"
-      className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 mb-2"
-    >
-      Register
-    </button>
+
+    <RegisterButton />
 
     <div className="flex items-center w-full my-3">
       <div className="flex-grow h-px bg-gray-300"></div>
@@ -81,6 +78,7 @@ const RegisterForm: React.FC<Props> = ({
         onSuccess={onGoogleSuccess}
         onError={onGoogleError}
         loading={loadingGoogle}
+        mode="register"
       />
     </div>
 

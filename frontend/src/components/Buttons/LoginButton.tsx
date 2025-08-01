@@ -1,14 +1,16 @@
 type LoginButtonProps = {
-  onClick: () => void;
+  type?: "button" | "submit";
 };
 
-const LoginButton: React.FC<LoginButtonProps> = ({ onClick }) => {
+const LoginButton: React.FC<LoginButtonProps> = ({ type = "submit" }) => {
   return (
-    <div className="ml-auto">
-      <button onClick={onClick} className="text-blue-600 hover:underline">
-        Login
-      </button>
-    </div>
+    <button
+      type={type}
+      className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
+      id="login-btn"
+    >
+      Login
+    </button>
   );
 };
 

@@ -1,4 +1,5 @@
 import React from "react";
+import ForgotPasswordButton from "../Buttons/ForgotPasswordButton";
 
 type Props = {
   email: string;
@@ -22,12 +23,9 @@ const ForgotPasswordForm: React.FC<Props> = ({
       onChange={handleChange}
       className="w-full px-4 py-2 mb-4 border rounded-md"
     />
-    <button
-      type="submit"
-      className="w-full bg-yellow-600 text-white py-2 rounded-md hover:bg-yellow-700 mb-2"
-    >
-      Send Reset Link
-    </button>
+
+    <ForgotPasswordButton />
+
     <div className="w-full flex justify-center items-center">
       <button
         type="button"
