@@ -64,20 +64,24 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: JWTPayloadBase) -> str:
-    to_encode = data.model_dump()
-    current_time = datetime.now(timezone.utc)
+def create_access_token(data: JWTPayloadBase, current_time: datetime | None = None) -> str:
+    if not current_time:
+        current_time = datetime.now(timezone.utc).replace(microsecond=0)
+
     expiration_time = current_time + timedelta(minutes=JWT_EXPIRATION_TIME_MINUTES)
+    to_encode = data.model_dump()
     to_encode.update({"iat": int(current_time.timestamp()), "exp": int(expiration_time.timestamp()), "type": "access"})
     access_token = encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
     return access_token
 
 
-def create_refresh_token(data: JWTPayloadBase) -> str:
-    to_encode = data.model_dump()
-    current_time = datetime.now(timezone.utc)
+def create_refresh_token(data: JWTPayloadBase, current_time: datetime | None = None) -> str:
+    if not current_time:
+        current_time = datetime.now(timezone.utc).replace(microsecond=0)
+
     expiration_time = current_time + timedelta(days=JWT_REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode = data.model_dump()
     to_encode.update({"iat": int(current_time.timestamp()), "exp": int(expiration_time.timestamp()), "type": "refresh"})
     refresh_token = encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
     update_in_db(next(get_session()), ReadUser, [{"user_id": data.user_id, "refresh_token": refresh_token, "modified_on_date": current_time}])
@@ -155,8 +159,10 @@ def issue_tokens_and_set_cookie(response: Response, db_user: ReadUser, role_name
         role_permissions=role_permissions
     )
 
-    access_token = create_access_token(token_data)
-    refresh_token_cookie = create_refresh_token(token_data)
+    current_time = datetime.now(timezone.utc).replace(microsecond=0)
+
+    access_token = create_access_token(token_data, current_time)
+    refresh_token_cookie = create_refresh_token(token_data, current_time)
 
     response.set_cookie(
         key="refresh_token",

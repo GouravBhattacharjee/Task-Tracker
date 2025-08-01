@@ -1,7 +1,6 @@
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import BaseModel, model_validator
-from datetime import date, datetime
-from zoneinfo import ZoneInfo
+from datetime import date, datetime, timezone
 
 
 def blank_to_zero_validator(model_class: type[SQLModel], fields: list[str]) -> type[SQLModel]:
@@ -18,7 +17,7 @@ def blank_to_zero_validator(model_class: type[SQLModel], fields: list[str]) -> t
 
 
 def get_time() -> datetime:
-    return datetime.now(ZoneInfo("Asia/Kolkata"))  # "America/New_York"
+    return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 class JWTPayloadBase(BaseModel):
