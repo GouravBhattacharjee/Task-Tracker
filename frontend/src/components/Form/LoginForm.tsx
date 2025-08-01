@@ -10,8 +10,8 @@ type Props = {
   handleSubmit: (e: React.FormEvent) => void;
   forgotPassword: () => void;
   goToRegister: () => void;
-  onGoogleSuccess: (credentialResponse: any) => void; // new prop
-  onGoogleError?: (message: string) => void; // optional
+  onGoogleSuccess: (credentialResponse: any) => void;
+  onGoogleError?: (message: string) => void;
   loadingGoogle?: boolean;
 };
 

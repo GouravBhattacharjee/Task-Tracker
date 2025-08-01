@@ -1,4 +1,5 @@
 import React from "react";
+import GoogleSignInButton from "../Buttons/GoogleSignInButton";
 
 type Props = {
   form: {
@@ -10,7 +11,10 @@ type Props = {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   goToLogin: () => void;
+  onGoogleSuccess: (credentialResponse: any) => void;
+  onGoogleError?: (message: string) => void;
   readOnlyEmail?: boolean;
+  loadingGoogle?: boolean;
 };
 
 const RegisterForm: React.FC<Props> = ({
@@ -18,7 +22,10 @@ const RegisterForm: React.FC<Props> = ({
   handleChange,
   handleSubmit,
   goToLogin,
-  readOnlyEmail
+  onGoogleSuccess,
+  onGoogleError,
+  readOnlyEmail,
+  loadingGoogle,
 }) => (
   <form onSubmit={handleSubmit}>
     <input
@@ -62,6 +69,21 @@ const RegisterForm: React.FC<Props> = ({
     >
       Register
     </button>
+
+    <div className="flex items-center w-full my-3">
+      <div className="flex-grow h-px bg-gray-300"></div>
+      <span className="mx-2 text-gray-500 text-sm font-semibold">OR</span>
+      <div className="flex-grow h-px bg-gray-300"></div>
+    </div>
+
+    <div className="w-full">
+      <GoogleSignInButton
+        onSuccess={onGoogleSuccess}
+        onError={onGoogleError}
+        loading={loadingGoogle}
+      />
+    </div>
+
     <div className="w-full flex justify-center items-center">
       <button
         type="button"

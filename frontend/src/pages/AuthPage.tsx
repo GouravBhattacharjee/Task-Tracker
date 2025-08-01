@@ -202,7 +202,10 @@ const AuthPage = () => {
               setError(null);
               setMessage(null);
             }}
+            onGoogleSuccess={handleGoogleSuccess}
+            onGoogleError={(msg) => setError(msg)}
             readOnlyEmail={!!form.email} // read-only if Google prefilled
+            loadingGoogle={loadingGoogle}
           />
         )}
 
