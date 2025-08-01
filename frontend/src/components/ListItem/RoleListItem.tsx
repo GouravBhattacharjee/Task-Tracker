@@ -1,6 +1,6 @@
-import React from 'react';
-import { RoleModel } from '../../services/RoleService';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { RoleModel } from "../../services/RoleService";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface RoleListItemProps {
   role: RoleModel;
@@ -8,7 +8,11 @@ interface RoleListItemProps {
   onDelete: (id: number) => void;
 }
 
-const RoleListItem: React.FC<RoleListItemProps> = ({ role, onEdit, onDelete }) => {
+const RoleListItem: React.FC<RoleListItemProps> = ({
+  role,
+  onEdit,
+  onDelete,
+}) => {
   const { user } = useAuth();
   const canEdit = user?.role_permissions_parsed.includes("update_role");
   const canDelete = user?.role_permissions_parsed.includes("delete_role");
@@ -26,8 +30,8 @@ const RoleListItem: React.FC<RoleListItemProps> = ({ role, onEdit, onDelete }) =
         <span className="font-medium">{role.role_name}</span>
         <span className="text-sm text-gray-600">
           {parsedPermissions.length > 0
-            ? parsedPermissions.join(', ')
-            : 'No permissions'}
+            ? parsedPermissions.join(", ")
+            : "No permissions"}
         </span>
       </div>
 

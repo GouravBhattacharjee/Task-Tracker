@@ -1,6 +1,6 @@
-import React from 'react';
-import { UserModel } from '../../services/UserService';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { UserModel } from "../../services/UserService";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface TaskFormProps {
   form: {
@@ -12,7 +12,9 @@ interface TaskFormProps {
   users: UserModel[];
   editingId: number | null;
   loading: boolean;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   handleSubmit: (e: React.FormEvent) => void;
   handleCancel: () => void;
 }
@@ -24,15 +26,21 @@ const TaskForm: React.FC<TaskFormProps> = ({
   loading,
   handleChange,
   handleSubmit,
-  handleCancel
+  handleCancel,
 }) => {
   const { user } = useAuth();
   const canCreate = user?.role_permissions_parsed.includes("create_task");
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"
+    >
       <div className="flex flex-col">
-        <label htmlFor="task_description" className="mb-1 text-sm font-medium text-gray-700">
+        <label
+          htmlFor="task_description"
+          className="mb-1 text-sm font-medium text-gray-700"
+        >
           Task Description
         </label>
         <input
@@ -47,7 +55,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="task_due_date" className="mb-1 text-sm font-medium text-gray-700">
+        <label
+          htmlFor="task_due_date"
+          className="mb-1 text-sm font-medium text-gray-700"
+        >
           Task Due Date
         </label>
         <input
@@ -62,18 +73,23 @@ const TaskForm: React.FC<TaskFormProps> = ({
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="owner_id" className="mb-1 text-sm font-medium text-gray-700">
+        <label
+          htmlFor="owner_id"
+          className="mb-1 text-sm font-medium text-gray-700"
+        >
           Assign to User
         </label>
         <select
           id="owner_id"
           name="owner_id"
-          value={form.owner_id || ''}
+          value={form.owner_id || ""}
           onChange={handleChange}
           required
           className="w-full border border-gray-300 p-2 rounded h-[40px]"
         >
-          <option value="" disabled hidden>Assign to User</option>
+          <option value="" disabled hidden>
+            Assign to User
+          </option>
           {users.map((user) => (
             <option key={user.user_id} value={user.user_id}>
               {user.email}

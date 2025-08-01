@@ -1,5 +1,5 @@
-import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface TaskStatusFormProps {
   form: {
@@ -18,13 +18,16 @@ const TaskStatusForm: React.FC<TaskStatusFormProps> = ({
   loading,
   handleChange,
   handleSubmit,
-  handleCancel
+  handleCancel,
 }) => {
   const { user } = useAuth();
   const canCreate = user?.role_permissions_parsed.includes("create_taskstatus");
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 mb-6 w-full items-end">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col sm:flex-row gap-4 mb-6 w-full items-end"
+    >
       <div className="flex flex-col gap-1 flex-1">
         <label
           htmlFor="task_status_name"

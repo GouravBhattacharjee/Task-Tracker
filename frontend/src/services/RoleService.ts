@@ -1,12 +1,12 @@
-import axiosInstance from './AxiosInstance';
+import axiosInstance from "./AxiosInstance";
 
 export type RoleModel = {
-    role_id: number;
-    role_name: string;
-    role_permissions: string;
-    role_active: boolean;
-    created_by_email: string;
-    modified_by_email: string;
+  role_id: number;
+  role_name: string;
+  role_permissions: string;
+  role_active: boolean;
+  created_by_email: string;
+  modified_by_email: string;
 };
 
 export const fetchRoles = async () => {
@@ -19,12 +19,17 @@ export const fetchRoleByID = async (role_id: number) => {
   return response.data;
 };
 
-export const createRole = async (payload: Omit<RoleModel, 'role_id' | 'role_active'>) => {
+export const createRole = async (
+  payload: Omit<RoleModel, "role_id" | "role_active">
+) => {
   const response = await axiosInstance.post(`/api/roles`, payload);
   return response.data;
 };
 
-export const updateRole = async (payload: Partial<RoleModel> & Required<Pick<RoleModel, 'role_id' | 'modified_by_email'>>) => {
+export const updateRole = async (
+  payload: Partial<RoleModel> &
+    Required<Pick<RoleModel, "role_id" | "modified_by_email">>
+) => {
   const response = await axiosInstance.post(`/api/update_role`, payload);
   return response.data;
 };

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { setToken as setGlobalToken } from '../services/TokenStore';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { jwtDecode } from "jwt-decode";
+import { setToken as setGlobalToken } from "../services/TokenStore";
 
 type DecodedTokenRaw = {
   user_id: number;
@@ -26,7 +26,7 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   user: null,
   login: () => {},
-  logout: () => {}
+  logout: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -39,9 +39,9 @@ const parsePermissions = (permString: string): string[] => {
   try {
     if (!permString) return [];
     return permString
-      .replace(/^\[|\]$/g, '')
-      .split(',')
-      .map(p => p.trim().replace(/^['"]|['"]$/g, ''))
+      .replace(/^\[|\]$/g, "")
+      .split(",")
+      .map((p) => p.trim().replace(/^['"]|['"]$/g, ""))
       .filter(Boolean);
   } catch {
     return [];
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const raw = jwtDecode<DecodedTokenRaw>(jwt);
     const parsed: DecodedToken = {
       ...raw,
-      role_permissions_parsed: parsePermissions(raw.role_permissions)
+      role_permissions_parsed: parsePermissions(raw.role_permissions),
     };
     setUser(parsed);
   };

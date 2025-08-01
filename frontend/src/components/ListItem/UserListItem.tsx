@@ -1,6 +1,6 @@
-import React from 'react';
-import { UserModel } from '../../services/UserService';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { UserModel } from "../../services/UserService";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface UserListItemProps {
   user: UserModel;
@@ -9,7 +9,12 @@ interface UserListItemProps {
   onDelete: (id: number) => void;
 }
 
-const UserListItem: React.FC<UserListItemProps> = ({ user: userData, roleName, onEdit, onDelete }) => {
+const UserListItem: React.FC<UserListItemProps> = ({
+  user: userData,
+  roleName,
+  onEdit,
+  onDelete,
+}) => {
   const { user } = useAuth();
   const canEdit = user?.role_permissions_parsed.includes("update_user");
   const canDelete = user?.role_permissions_parsed.includes("delete_user");
@@ -17,7 +22,8 @@ const UserListItem: React.FC<UserListItemProps> = ({ user: userData, roleName, o
   return (
     <li className="flex justify-between items-center border-b pb-2">
       <span className="font-medium">
-        {userData.first_name} {userData.last_name} - {userData.email} - {roleName}
+        {userData.first_name} {userData.last_name} - {userData.email} -{" "}
+        {roleName}
       </span>
       <div className="space-x-2">
         <button

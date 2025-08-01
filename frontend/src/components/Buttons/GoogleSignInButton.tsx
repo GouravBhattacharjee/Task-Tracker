@@ -8,7 +8,12 @@ interface GoogleSignInButtonProps {
   mode: "login" | "register";
 }
 
-const GoogleSignInButton = ({ onSuccess, onError, loading, mode }: GoogleSignInButtonProps) => {
+const GoogleSignInButton = ({
+  onSuccess,
+  onError,
+  loading,
+  mode,
+}: GoogleSignInButtonProps) => {
   const [buttonWidth, setButtonWidth] = useState<number>(300);
 
   useEffect(() => {
@@ -38,7 +43,9 @@ const GoogleSignInButton = ({ onSuccess, onError, loading, mode }: GoogleSignInB
         shape="rectangular"
         width={buttonWidth}
       />
-      {loading && <p className="text-sm text-gray-500 mt-2">Signing in with Google...</p>}
+      {loading && (
+        <p className="text-sm text-gray-500 mt-2">Signing in with Google...</p>
+      )}
     </div>
   );
 };

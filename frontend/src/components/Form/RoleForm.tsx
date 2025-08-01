@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../contexts/AuthContext";
 
 interface RoleFormProps {
   form: {
@@ -68,7 +68,9 @@ const RoleForm: React.FC<RoleFormProps> = ({
         </div>
 
         <div className="flex flex-col flex-1 gap-2 relative" ref={dropdownRef}>
-          <label className="text-sm font-medium text-gray-700">Permissions</label>
+          <label className="text-sm font-medium text-gray-700">
+            Permissions
+          </label>
 
           <button
             type="button"

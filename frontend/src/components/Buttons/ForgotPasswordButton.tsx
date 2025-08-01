@@ -2,7 +2,9 @@ type ForgotPasswordButtonProps = {
   type?: "button" | "submit";
 };
 
-const ForgotPasswordButton: React.FC<ForgotPasswordButtonProps> = ({ type = "submit" }) => {
+const ForgotPasswordButton: React.FC<ForgotPasswordButtonProps> = ({
+  type = "submit",
+}) => {
   return (
     <button
       type={type}

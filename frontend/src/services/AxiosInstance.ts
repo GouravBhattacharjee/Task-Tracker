@@ -1,7 +1,7 @@
-import axios from 'axios';
-import { BACKEND_BASE_URL } from '../config';
-import { refreshToken } from '../services/AuthService';
-import { getToken, setToken } from './TokenStore';
+import axios from "axios";
+import { BACKEND_BASE_URL } from "../config";
+import { refreshToken } from "../services/AuthService";
+import { getToken, setToken } from "./TokenStore";
 
 const AxiosInstance = axios.create({
   baseURL: BACKEND_BASE_URL,
@@ -36,7 +36,9 @@ AxiosInstance.interceptors.response.use(
         return AxiosInstance(originalRequest);
       } catch (err) {
         // Refresh failed: logout
-        (window as any).logout ? (window as any).logout() : window.location.href = '/login';
+        (window as any).logout
+          ? (window as any).logout()
+          : (window.location.href = "/login");
       }
     }
 

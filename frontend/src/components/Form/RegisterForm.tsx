@@ -87,7 +87,7 @@ const RegisterForm: React.FC<Props> = ({
         type="button"
         onClick={goToLogin}
         className="text-blue-600 hover:underline text-sm bg-transparent border-0 p-0 cursor-pointer mt-2"
-        style={{ backgroundColor: 'transparent' }}
+        style={{ backgroundColor: "transparent" }}
       >
         Back to Login
       </button>

@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 const Spinner: React.FC<{ size?: number; color?: string }> = ({
   size = 24,
-  color = 'text-blue-600',
+  color = "text-blue-600",
 }) => {
   return (
     <div className="flex items-center justify-center">

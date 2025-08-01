@@ -1,6 +1,6 @@
-import React from 'react';
-import { TaskStatusModel } from '../../services/TaskStatusService';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { TaskStatusModel } from "../../services/TaskStatusService";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface TaskStatusListItemProps {
   status: TaskStatusModel;
@@ -8,7 +8,11 @@ interface TaskStatusListItemProps {
   onDelete: (id: number) => void;
 }
 
-const TaskStatusListItem: React.FC<TaskStatusListItemProps> = ({ status, onEdit, onDelete }) => {
+const TaskStatusListItem: React.FC<TaskStatusListItemProps> = ({
+  status,
+  onEdit,
+  onDelete,
+}) => {
   const { user } = useAuth();
   const canEdit = user?.role_permissions_parsed.includes("update_taskstatus");
   const canDelete = user?.role_permissions_parsed.includes("delete_taskstatus");

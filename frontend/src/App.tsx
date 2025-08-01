@@ -1,14 +1,19 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css';
-import NavBar from './components/ui/NavBar';
-import ProjectsPage from './pages/ProjectsPage';
-import TasksPage from './pages/TasksPage';
-import UsersPage from './pages/UsersPage';
-import RolesPage from './pages/RolesPage';
-import AuthPage from './pages/AuthPage';
-import TaskStatusPage from './pages/TaskStatusPage';
-import { useAuth } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import "./App.css";
+import NavBar from "./components/ui/NavBar";
+import ProjectsPage from "./pages/ProjectsPage";
+import TasksPage from "./pages/TasksPage";
+import UsersPage from "./pages/UsersPage";
+import RolesPage from "./pages/RolesPage";
+import AuthPage from "./pages/AuthPage";
+import TaskStatusPage from "./pages/TaskStatusPage";
+import { useAuth } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -56,7 +61,10 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to={user ? "/projects" : "/login"} />} />
+      <Route
+        path="/"
+        element={<Navigate to={user ? "/projects" : "/login"} />}
+      />
     </Routes>
   );
 }

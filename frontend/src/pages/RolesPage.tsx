@@ -1,13 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { fetchRoles, createRole, updateRole, RoleModel, fetchRolePermissions } from '../services/RoleService';
-import RoleForm from '../components/Form/RoleForm';
-import RoleListItem from '../components/ListItem/RoleListItem';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import {
+  fetchRoles,
+  createRole,
+  updateRole,
+  RoleModel,
+  fetchRolePermissions,
+} from "../services/RoleService";
+import RoleForm from "../components/Form/RoleForm";
+import RoleListItem from "../components/ListItem/RoleListItem";
+import { useAuth } from "../contexts/AuthContext";
 
 const initialForm = {
-  role_name: '',
-  permissions: [] as string[]
+  role_name: "",
+  permissions: [] as string[],
 };
 
 const RolesPage = () => {
@@ -27,15 +33,17 @@ const RolesPage = () => {
 
   useEffect(() => {
     const loadPermissions = async () => {
-    try {
-      const perms = await fetchRolePermissions();
-      // Map objects to strings
-      const permNames = perms.map((p: { role_permissions_name: string }) => p.role_permissions_name);
-      setAllPermissions(permNames);
-    } catch {
-      setError('Failed to load permissions');
-    }
-  };
+      try {
+        const perms = await fetchRolePermissions();
+        // Map objects to strings
+        const permNames = perms.map(
+          (p: { role_permissions_name: string }) => p.role_permissions_name
+        );
+        setAllPermissions(permNames);
+      } catch {
+        setError("Failed to load permissions");
+      }
+    };
 
     loadPermissions();
   }, []);
@@ -47,7 +55,7 @@ const RolesPage = () => {
       const data = await fetchRoles();
       setRoles(data);
     } catch {
-      setError('Failed to load roles');
+      setError("Failed to load roles");
     }
     setLoading(false);
   };
@@ -71,21 +79,24 @@ const RolesPage = () => {
     setError(null);
 
     try {
-      const permissionsString = JSON.stringify(form.permissions).replace(/"/g, "'");
+      const permissionsString = JSON.stringify(form.permissions).replace(
+        /"/g,
+        "'"
+      );
 
       if (editingId) {
         await updateRole({
           role_id: editingId,
           role_name: form.role_name,
           role_permissions: permissionsString,
-          modified_by_email: user!.email
+          modified_by_email: user!.email,
         });
       } else {
         await createRole({
           role_name: form.role_name,
           role_permissions: permissionsString,
           created_by_email: user!.email,
-          modified_by_email: user!.email
+          modified_by_email: user!.email,
         });
       }
 
@@ -93,7 +104,7 @@ const RolesPage = () => {
       setEditingId(null);
       await loadRoles();
     } catch {
-      setError('Failed to save role');
+      setError("Failed to save role");
     }
 
     setLoading(false);
@@ -109,7 +120,7 @@ const RolesPage = () => {
     }
 
     setForm({
-      role_name: role.role_name || '',
+      role_name: role.role_name || "",
       permissions: parsedPermissions,
     });
 
@@ -120,10 +131,14 @@ const RolesPage = () => {
     setLoading(true);
     setError(null);
     try {
-      await updateRole({ role_id: id, role_active: false, modified_by_email: user!.email });
+      await updateRole({
+        role_id: id,
+        role_active: false,
+        modified_by_email: user!.email,
+      });
       await loadRoles();
     } catch {
-      setError('Failed to delete role');
+      setError("Failed to delete role");
     }
     setLoading(false);
   };

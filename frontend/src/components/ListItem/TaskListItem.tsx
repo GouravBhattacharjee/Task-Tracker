@@ -1,7 +1,7 @@
-import React from 'react';
-import { TaskModel } from '../../services/TaskService';
-import { TaskStatusModel } from '../../services/TaskStatusService';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { TaskModel } from "../../services/TaskService";
+import { TaskStatusModel } from "../../services/TaskStatusService";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface TaskListItemProps {
   task: TaskModel;
@@ -20,7 +20,7 @@ const TaskListItem: React.FC<TaskListItemProps> = ({
   onEdit,
   onDelete,
   onStatusChange,
-  loading
+  loading,
 }) => {
   const { user } = useAuth();
   const canEdit = user?.role_permissions_parsed.includes("update_task");
@@ -49,7 +49,7 @@ const TaskListItem: React.FC<TaskListItemProps> = ({
       <div className="text-sm text-gray-600 flex items-center">
         <span className="truncate w-64">
           Due: {task.task_due_date?.substring(0, 10)} <br />
-          Owner: {userMap[task.owner_id] || 'Unknown User'}
+          Owner: {userMap[task.owner_id] || "Unknown User"}
         </span>
       </div>
 

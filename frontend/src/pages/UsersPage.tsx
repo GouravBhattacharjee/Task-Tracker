@@ -1,18 +1,18 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
-import { fetchUsers, updateUser, UserModel } from '../services/UserService';
-import { fetchRoles, RoleModel } from '../services/RoleService';
-import { userRegister } from '../services/AuthService';
-import UserForm from '../components/Form/UserForm';
-import UserListItem from '../components/ListItem/UserListItem';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
+import { fetchUsers, updateUser, UserModel } from "../services/UserService";
+import { fetchRoles, RoleModel } from "../services/RoleService";
+import { userRegister } from "../services/AuthService";
+import UserForm from "../components/Form/UserForm";
+import UserListItem from "../components/ListItem/UserListItem";
+import { useAuth } from "../contexts/AuthContext";
 
 const initialForm = {
-  first_name: '',
-  last_name: '',
-  email: '',
-  plain_password: '',
-  role_id: 0
+  first_name: "",
+  last_name: "",
+  email: "",
+  plain_password: "",
+  role_id: 0,
 };
 
 const UsersPage = () => {
@@ -33,7 +33,7 @@ const UsersPage = () => {
 
   const roleMap = useMemo(() => {
     const map: Record<number, string> = {};
-    roles.forEach(role => {
+    roles.forEach((role) => {
       map[role.role_id] = role.role_name;
     });
     return map;
@@ -46,7 +46,7 @@ const UsersPage = () => {
       const data = await fetchUsers();
       setUsers(data);
     } catch {
-      setError('Failed to load users');
+      setError("Failed to load users");
     }
     setLoading(false);
   };
@@ -58,7 +58,9 @@ const UsersPage = () => {
     } catch {}
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -68,26 +70,35 @@ const UsersPage = () => {
     setError(null);
     try {
       if (editingId) {
-        await updateUser({ ...form, user_id: editingId, modified_by_email: user!.email });
+        await updateUser({
+          ...form,
+          user_id: editingId,
+          modified_by_email: user!.email,
+        });
       } else {
-        await userRegister({ ...form, provider: 'local', created_by_email: user!.email, modified_by_email: user!.email });
+        await userRegister({
+          ...form,
+          provider: "local",
+          created_by_email: user!.email,
+          modified_by_email: user!.email,
+        });
       }
       setForm(initialForm);
       setEditingId(null);
       await loadUsers();
     } catch {
-      setError('Failed to save user');
+      setError("Failed to save user");
     }
     setLoading(false);
   };
 
   const handleEdit = (user: UserModel) => {
     setForm({
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
-      email: user.email || '',
-      plain_password: user.plain_password || '',
-      role_id: user.role_id || 0
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
+      email: user.email || "",
+      plain_password: user.plain_password || "",
+      role_id: user.role_id || 0,
     });
     setEditingId(user.user_id);
   };
@@ -96,10 +107,14 @@ const UsersPage = () => {
     setLoading(true);
     setError(null);
     try {
-      await updateUser({ user_id: id, user_active: false, modified_by_email: user!.email });
+      await updateUser({
+        user_id: id,
+        user_active: false,
+        modified_by_email: user!.email,
+      });
       await loadUsers();
     } catch {
-      setError('Failed to delete user');
+      setError("Failed to delete user");
     }
     setLoading(false);
   };
@@ -130,7 +145,7 @@ const UsersPage = () => {
           <UserListItem
             key={user.user_id}
             user={user}
-            roleName={roleMap[user.role_id] || 'Unknown Role'}
+            roleName={roleMap[user.role_id] || "Unknown Role"}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />

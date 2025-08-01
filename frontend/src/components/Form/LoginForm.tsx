@@ -1,6 +1,6 @@
 import React from "react";
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
-import LoginButton from '../Buttons/LoginButton';
+import LoginButton from "../Buttons/LoginButton";
 
 type Props = {
   form: {

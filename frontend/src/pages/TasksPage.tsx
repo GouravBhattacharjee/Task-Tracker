@@ -1,17 +1,26 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import { createTask, updateTask, updateTaskStatusInTask, fetchTasksByProjectID, TaskModel } from '../services/TaskService';
-import { fetchUsers, UserModel } from '../services/UserService';
-import { fetchTaskStatuses, TaskStatusModel } from '../services/TaskStatusService';
-import TaskForm from '../components/Form/TaskForm';
-import TaskListItem from '../components/ListItem/TaskListItem';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import {
+  createTask,
+  updateTask,
+  updateTaskStatusInTask,
+  fetchTasksByProjectID,
+  TaskModel,
+} from "../services/TaskService";
+import { fetchUsers, UserModel } from "../services/UserService";
+import {
+  fetchTaskStatuses,
+  TaskStatusModel,
+} from "../services/TaskStatusService";
+import TaskForm from "../components/Form/TaskForm";
+import TaskListItem from "../components/ListItem/TaskListItem";
+import { useAuth } from "../contexts/AuthContext";
 
 const initialForm = {
-  task_description: '',
-  task_due_date: '',
+  task_description: "",
+  task_due_date: "",
   owner_id: 0,
-  project_id: 0
+  project_id: 0,
 };
 
 const TasksPage = () => {
@@ -28,7 +37,7 @@ const TasksPage = () => {
 
   const userMap = useMemo(() => {
     const map: Record<number, string> = {};
-    users.forEach(user => {
+    users.forEach((user) => {
       map[user.user_id] = user.email;
     });
     return map;
@@ -41,7 +50,7 @@ const TasksPage = () => {
       const data = await fetchTasksByProjectID(Number(projectId));
       setTasks(data);
     } catch {
-      setError('Failed to load tasks');
+      setError("Failed to load tasks");
     }
     setLoading(false);
   }, [projectId]);
@@ -62,7 +71,7 @@ const TasksPage = () => {
 
   const location = useLocation();
   useEffect(() => {
-    setForm(prev => ({ ...prev, project_id: Number(projectId) }));
+    setForm((prev) => ({ ...prev, project_id: Number(projectId) }));
     loadTasks();
     loadUsers();
     loadStatuses();
@@ -70,7 +79,9 @@ const TasksPage = () => {
 
   const projectName = (location.state as { projectName?: string })?.projectName;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -80,25 +91,36 @@ const TasksPage = () => {
     setError(null);
     try {
       if (editingId) {
-        await updateTask({ ...form, project_id: Number(projectId), task_id: editingId, modified_by_email: user!.email });
+        await updateTask({
+          ...form,
+          project_id: Number(projectId),
+          task_id: editingId,
+          modified_by_email: user!.email,
+        });
       } else {
-        await createTask({ ...form, project_id: Number(projectId), task_status_id: 1, created_by_email: user!.email, modified_by_email: user!.email });
+        await createTask({
+          ...form,
+          project_id: Number(projectId),
+          task_status_id: 1,
+          created_by_email: user!.email,
+          modified_by_email: user!.email,
+        });
       }
       setForm(initialForm);
       setEditingId(null);
       await loadTasks();
     } catch {
-      setError('Failed to save task');
+      setError("Failed to save task");
     }
     setLoading(false);
   };
 
   const handleEdit = (task: TaskModel) => {
     setForm({
-      task_description: task.task_description || '',
-      task_due_date: task.task_due_date || '',
+      task_description: task.task_description || "",
+      task_due_date: task.task_due_date || "",
       owner_id: task.owner_id || 0,
-      project_id: Number(projectId)
+      project_id: Number(projectId),
     });
     setEditingId(task.task_id);
   };
@@ -107,10 +129,14 @@ const TasksPage = () => {
     setLoading(true);
     setError(null);
     try {
-      await updateTask({ task_id: id, task_active: false, modified_by_email: user!.email });
+      await updateTask({
+        task_id: id,
+        task_active: false,
+        modified_by_email: user!.email,
+      });
       await loadTasks();
     } catch {
-      setError('Failed to delete task');
+      setError("Failed to delete task");
     }
     setLoading(false);
   };
@@ -127,14 +153,16 @@ const TasksPage = () => {
       await updateTaskStatusInTask({ ...task, task_status_id: newStatusID });
       await loadTasks();
     } catch {
-      setError('Failed to update status');
+      setError("Failed to update status");
     }
     setLoading(false);
   };
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">Tasks{projectName ? ` for ${projectName}` : ''}</h2>
+      <h2 className="text-2xl font-semibold mb-4">
+        Tasks{projectName ? ` for ${projectName}` : ""}
+      </h2>
       {loading && <div className="text-gray-500">Loading...</div>}
       {error && <div className="text-red-500 mb-2">{error}</div>}
 

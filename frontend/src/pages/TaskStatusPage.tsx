@@ -1,12 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { fetchTaskStatuses, createTaskStatus, updateTaskStatus, TaskStatusModel } from '../services/TaskStatusService';
-import TaskStatusForm from '../components/Form/TaskStatusForm';
-import TaskStatusListItem from '../components/ListItem/TaskStatusListItem';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import {
+  fetchTaskStatuses,
+  createTaskStatus,
+  updateTaskStatus,
+  TaskStatusModel,
+} from "../services/TaskStatusService";
+import TaskStatusForm from "../components/Form/TaskStatusForm";
+import TaskStatusListItem from "../components/ListItem/TaskStatusListItem";
+import { useAuth } from "../contexts/AuthContext";
 
 const initialForm = {
-  task_status_name: ''
+  task_status_name: "",
 };
 
 const TaskStatusPage = () => {
@@ -30,7 +35,7 @@ const TaskStatusPage = () => {
       const data = await fetchTaskStatuses();
       setTaskStatuses(data);
     } catch {
-      setError('Failed to load statuses');
+      setError("Failed to load statuses");
     }
     setLoading(false);
   };
@@ -45,21 +50,29 @@ const TaskStatusPage = () => {
     setError(null);
     try {
       if (editingId) {
-        await updateTaskStatus({ ...form, task_status_id: editingId, modified_by_email: user!.email });
+        await updateTaskStatus({
+          ...form,
+          task_status_id: editingId,
+          modified_by_email: user!.email,
+        });
       } else {
-        await createTaskStatus({ ...form, created_by_email: user!.email, modified_by_email: user!.email });
+        await createTaskStatus({
+          ...form,
+          created_by_email: user!.email,
+          modified_by_email: user!.email,
+        });
       }
       setForm(initialForm);
       setEditingId(null);
       await loadTaskStatuses();
     } catch {
-      setError('Failed to save status');
+      setError("Failed to save status");
     }
     setLoading(false);
   };
 
   const handleEdit = (status: TaskStatusModel) => {
-    setForm({ task_status_name: status.task_status_name || '' });
+    setForm({ task_status_name: status.task_status_name || "" });
     setEditingId(status.task_status_id);
   };
 
@@ -67,10 +80,14 @@ const TaskStatusPage = () => {
     setLoading(true);
     setError(null);
     try {
-      await updateTaskStatus({ task_status_id: id, task_status_active: false, modified_by_email: user!.email });
+      await updateTaskStatus({
+        task_status_id: id,
+        task_status_active: false,
+        modified_by_email: user!.email,
+      });
       await loadTaskStatuses();
     } catch {
-      setError('Failed to delete task status');
+      setError("Failed to delete task status");
     }
     setLoading(false);
   };

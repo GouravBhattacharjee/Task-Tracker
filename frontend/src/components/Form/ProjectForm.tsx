@@ -1,5 +1,5 @@
-import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface ProjectFormProps {
   form: {
@@ -10,7 +10,9 @@ interface ProjectFormProps {
   };
   editingId: number | null;
   loading: boolean;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   handleSubmit: (e: React.FormEvent) => void;
   handleCancel: () => void;
 }
@@ -21,15 +23,21 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   loading,
   handleChange,
   handleSubmit,
-  handleCancel
+  handleCancel,
 }) => {
   const { user } = useAuth();
   const canCreate = user?.role_permissions_parsed.includes("create_project");
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
+    >
       <div className="flex flex-col">
-        <label htmlFor="project_name" className="mb-1 text-sm font-medium text-gray-700">
+        <label
+          htmlFor="project_name"
+          className="mb-1 text-sm font-medium text-gray-700"
+        >
           Project Name
         </label>
         <input
@@ -44,7 +52,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="project_description" className="mb-1 text-sm font-medium text-gray-700">
+        <label
+          htmlFor="project_description"
+          className="mb-1 text-sm font-medium text-gray-700"
+        >
           Description
         </label>
         <input
@@ -59,7 +70,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="project_start_date" className="mb-1 text-sm font-medium text-gray-700">
+        <label
+          htmlFor="project_start_date"
+          className="mb-1 text-sm font-medium text-gray-700"
+        >
           Start Date
         </label>
         <input
@@ -74,7 +88,10 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="project_end_date" className="mb-1 text-sm font-medium text-gray-700">
+        <label
+          htmlFor="project_end_date"
+          className="mb-1 text-sm font-medium text-gray-700"
+        >
           End Date
         </label>
         <input

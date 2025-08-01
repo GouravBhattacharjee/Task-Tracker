@@ -1,7 +1,7 @@
-import React from 'react';
-import { ProjectModel } from '../../services/ProjectService';
-import { useAuth } from '../../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { ProjectModel } from "../../services/ProjectService";
+import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 interface ProjectListItemProps {
   project: ProjectModel;
@@ -10,7 +10,12 @@ interface ProjectListItemProps {
   onDelete: (id: number) => void;
 }
 
-const ProjectListItem: React.FC<ProjectListItemProps> = ({ project, ownerName, onEdit, onDelete }) => {
+const ProjectListItem: React.FC<ProjectListItemProps> = ({
+  project,
+  ownerName,
+  onEdit,
+  onDelete,
+}) => {
   const { user } = useAuth();
   const canEdit = user?.role_permissions_parsed.includes("update_project");
   const canDelete = user?.role_permissions_parsed.includes("delete_project");

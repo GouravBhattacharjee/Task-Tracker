@@ -1,6 +1,6 @@
-import React from 'react';
-import { RoleModel } from '../../services/RoleService';
-import { useAuth } from '../../contexts/AuthContext';
+import React from "react";
+import { RoleModel } from "../../services/RoleService";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface UserFormProps {
   form: {
@@ -13,7 +13,9 @@ interface UserFormProps {
   roles: RoleModel[];
   editingId: number | null;
   loading: boolean;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   handleSubmit: (e: React.FormEvent) => void;
   handleCancel: () => void;
 }
@@ -25,15 +27,23 @@ const UserForm: React.FC<UserFormProps> = ({
   loading,
   handleChange,
   handleSubmit,
-  handleCancel
+  handleCancel,
 }) => {
   const { user } = useAuth();
   const canCreate = user?.role_permissions_parsed.includes("create_user");
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 items-end">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 items-end"
+    >
       <div className="flex flex-col gap-1">
-        <label htmlFor="first_name" className="text-sm font-medium text-gray-700">First Name</label>
+        <label
+          htmlFor="first_name"
+          className="text-sm font-medium text-gray-700"
+        >
+          First Name
+        </label>
         <input
           id="first_name"
           name="first_name"
@@ -46,7 +56,12 @@ const UserForm: React.FC<UserFormProps> = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="last_name" className="text-sm font-medium text-gray-700">Last Name</label>
+        <label
+          htmlFor="last_name"
+          className="text-sm font-medium text-gray-700"
+        >
+          Last Name
+        </label>
         <input
           id="last_name"
           name="last_name"
@@ -59,7 +74,9 @@ const UserForm: React.FC<UserFormProps> = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
+        <label htmlFor="email" className="text-sm font-medium text-gray-700">
+          Email
+        </label>
         <input
           id="email"
           name="email"
@@ -72,7 +89,12 @@ const UserForm: React.FC<UserFormProps> = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="plain_password" className="text-sm font-medium text-gray-700">Password</label>
+        <label
+          htmlFor="plain_password"
+          className="text-sm font-medium text-gray-700"
+        >
+          Password
+        </label>
         <input
           id="plain_password"
           name="plain_password"
@@ -87,11 +109,13 @@ const UserForm: React.FC<UserFormProps> = ({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="role_id" className="text-sm font-medium text-gray-700">Role</label>
+        <label htmlFor="role_id" className="text-sm font-medium text-gray-700">
+          Role
+        </label>
         <select
           id="role_id"
           name="role_id"
-          value={form.role_id || ''}
+          value={form.role_id || ""}
           onChange={handleChange}
           className="p-2 border border-gray-300 rounded h-[40px]"
           required

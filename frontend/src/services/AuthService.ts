@@ -1,6 +1,6 @@
-import axios from 'axios';
-import axiosInstance from './AxiosInstance';
-import { BACKEND_BASE_URL } from '../config';
+import axios from "axios";
+import axiosInstance from "./AxiosInstance";
+import { BACKEND_BASE_URL } from "../config";
 
 type LoginModel = {
   email: string;
@@ -26,7 +26,10 @@ export const userLogin = async (payload: LoginModel) => {
 };
 
 export const userRegister = async (payload: RegisterModel) => {
-  const response = await axios.post(`${BACKEND_BASE_URL}/api/register`, payload);
+  const response = await axios.post(
+    `${BACKEND_BASE_URL}/api/register`,
+    payload
+  );
   return response;
 };
 
@@ -36,16 +39,24 @@ export const userForgotPassword = async (payload: { email: string }) => {
 };
 
 export const refreshToken = async () => {
-  const response = await axios.post(`${BACKEND_BASE_URL}/api/refresh-token`, null, {
-    withCredentials: true, // ensure cookies are sent
-  });
+  const response = await axios.post(
+    `${BACKEND_BASE_URL}/api/refresh-token`,
+    null,
+    {
+      withCredentials: true, // ensure cookies are sent
+    }
+  );
   return response.data;
 };
 
 export const userGoogleLogin = async (token: string) => {
   const payload = { token };
-  const response = await axios.post(`${BACKEND_BASE_URL}/api/login/google`, payload, {
-    withCredentials: true,
-  });
+  const response = await axios.post(
+    `${BACKEND_BASE_URL}/api/login/google`,
+    payload,
+    {
+      withCredentials: true,
+    }
+  );
   return response.data;
 };
