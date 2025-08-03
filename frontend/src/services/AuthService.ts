@@ -60,3 +60,7 @@ export const userGoogleLogin = async (token: string) => {
   );
   return response.data;
 };
+
+export const userLogout = async () => {
+  await axiosInstance.post(`/api/logout`);
+};

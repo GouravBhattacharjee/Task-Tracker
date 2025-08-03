@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { jwtDecode } from "jwt-decode";
 import { setToken as setGlobalToken } from "../services/TokenStore";
+import { userLogout } from "../services/AuthService";
 
 type DecodedTokenRaw = {
   user_id: number;
@@ -67,10 +68,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     decodeAndSetUser(newToken);
   };
 
-  const logout = () => {
-    setTokenState(null);
-    setGlobalToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      await userLogout();
+    } catch (error) {
+      console.error("Logout API failed", error);
+    } finally {
+      setTokenState(null);
+      setGlobalToken(null);
+      setUser(null);
+    }
   };
 
   // Make logout callable from Axios interceptor

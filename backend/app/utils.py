@@ -3,10 +3,10 @@ from jwt import encode, decode, ExpiredSignatureError, InvalidTokenError
 from models import ReadUser, JWTPayloadBase, JWTPayload
 from datetime import datetime, timedelta, timezone
 from sqlmodel import SQLModel, Session, select
+from fastapi.security import SecurityScopes
 from passlib.context import CryptContext
 from database import get_session
 from dotenv import load_dotenv
-from typing import Callable
 from os import getenv
 import ast
 
@@ -84,12 +84,12 @@ def create_refresh_token(data: JWTPayloadBase, current_time: datetime | None = N
     to_encode = data.model_dump()
     to_encode.update({"iat": int(current_time.timestamp()), "exp": int(expiration_time.timestamp()), "type": "refresh"})
     refresh_token = encode(to_encode, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-    update_in_db(next(get_session()), ReadUser, [{"user_id": data.user_id, "refresh_token": refresh_token, "modified_on_date": current_time}])
+    update_in_db(next(get_session()), ReadUser, [{"user_id": data.user_id, "refresh_token": refresh_token, "modified_by_email": "system", "modified_on_date": current_time}])
 
     return refresh_token
 
 
-def verify_access_token(authorization: str = Header(...), session: Session = Depends(get_session)) -> JWTPayload:
+def verify_access_token(required_scopes: SecurityScopes, authorization: str = Header(...), session: Session = Depends(get_session)) -> JWTPayloadBase:
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid authorization header")
 
@@ -108,7 +108,27 @@ def verify_access_token(authorization: str = Header(...), session: Session = Dep
         if user.modified_on_date.astimezone(timezone(timedelta(hours=5, minutes=30))) > iat:
             raise HTTPException(status_code=401, detail="Access token revoked due to profile/password update")
 
-        return payload
+        scopes = list(required_scopes.scopes) # Using list make a copy
+        mode = "any"
+        if scopes and scopes[0].startswith("all:"):
+            mode = "all"
+            scopes[0] = scopes[0].replace("all:", "")
+
+        if scopes:
+            user_scopes: list[str] = ast.literal_eval(payload.role_permissions or "[]")
+
+            if mode == "any" and not any(scope in user_scopes for scope in scopes):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"You do not have access to this resource. Requires one of: {scopes}"
+                )
+            elif mode == "all" and not all(scope in user_scopes for scope in scopes):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"You do not have access to this resource. Requires all of: {scopes}"
+                )
+
+        return JWTPayloadBase(**payload.model_dump())
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except InvalidTokenError:
@@ -174,29 +194,3 @@ def issue_tokens_and_set_cookie(response: Response, db_user: ReadUser, role_name
     )
 
     return access_token
-
-
-def require_permissions_any(permissions: list[str]) -> Callable[[JWTPayload], JWTPayload]:
-    def decorator(jwt_user: JWTPayload = Depends(verify_access_token)) -> JWTPayload:
-        user_permissions: list[str] = ast.literal_eval(jwt_user.role_permissions or "[]")
-
-        if not any(p in user_permissions for p in permissions):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"You do not have access to this resource. Requires one of: {permissions}"
-            )
-        return jwt_user
-    return decorator
-
-
-def require_permissions_all(permissions: list[str]) -> Callable[[JWTPayload], JWTPayload]:
-    def decorator(jwt_user: JWTPayload = Depends(verify_access_token)) -> JWTPayload:
-        user_permissions: list[str] = ast.literal_eval(jwt_user.role_permissions or "[]")
-
-        if not all(p in user_permissions for p in permissions):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"You do not have access to this resource. Requires all of: {permissions}"
-            )
-        return jwt_user
-    return decorator
