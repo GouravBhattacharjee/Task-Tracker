@@ -34,7 +34,7 @@ const AuthPage = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user) navigate("/projects");
+    if (user) navigate("/");
   }, [user, navigate]);
 
   // Prevent scrollbars on body

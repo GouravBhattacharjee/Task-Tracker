@@ -7,6 +7,13 @@ const NavBar = () => {
 
   return (
     <nav className="p-4 border-b border-gray-300 flex flex-wrap items-center gap-4 w-full">
+      <Link to="/" className="flex items-center">
+        <img
+          src={require("../../assets/task-tracker-icon.png")}
+          alt="Task Tracker"
+          className="h-8 w-8 mr-2"
+        />
+      </Link>
       {user && (
         <>
           <Link to="/projects" className="text-white-600 hover:underline">

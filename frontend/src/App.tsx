@@ -12,6 +12,7 @@ import UsersPage from "./pages/UsersPage";
 import RolesPage from "./pages/RolesPage";
 import AuthPage from "./pages/AuthPage";
 import TaskStatusPage from "./pages/TaskStatusPage";
+import WelcomePage from "./pages/WelcomePage";
 import { useAuth } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -63,7 +64,15 @@ function AppRoutes() {
       />
       <Route
         path="/"
-        element={<Navigate to={user ? "/projects" : "/login"} />}
+        element={
+          user ? (
+            <ProtectedRoute>
+              <WelcomePage />
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
     </Routes>
   );
