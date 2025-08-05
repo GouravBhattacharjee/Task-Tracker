@@ -7,3 +7,6 @@ pandas==2.2.3
 passlib==1.7.4
 sqlalchemy==2.0.40
 dotenv==0.9.9
+pyjwt==2.10.1
+google-auth==2.40.3
+requests==2.32.3
