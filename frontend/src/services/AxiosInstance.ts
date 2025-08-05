@@ -1,7 +1,8 @@
 import axios from "axios";
-import { BACKEND_BASE_URL } from "../config";
 import { refreshToken } from "../services/AuthService";
 import { getToken, setToken } from "./TokenStore";
+
+const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL!;
 
 const AxiosInstance = axios.create({
   baseURL: BACKEND_BASE_URL,
@@ -49,8 +50,9 @@ AxiosInstance.interceptors.response.use(
 export default AxiosInstance;
 
 // import axios from 'axios';
-// import { BACKEND_BASE_URL } from '../config';
 // import { refreshToken } from '../services/AuthService';
+
+// const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL!;
 
 // const AxiosInstance = axios.create({
 //   baseURL: BACKEND_BASE_URL,

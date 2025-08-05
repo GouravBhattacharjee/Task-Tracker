@@ -3,3 +3,5 @@
 /frontend/package-lock.json
 /backend/SQL/
 /backend/app/__pycache__/
+.env
+.env.*

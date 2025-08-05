@@ -1,6 +1,7 @@
 import axios from "axios";
 import AxiosInstance from "./AxiosInstance";
-import { BACKEND_BASE_URL } from "../config";
+
+const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_BASE_URL!;
 
 type LoginModel = {
   email: string;
