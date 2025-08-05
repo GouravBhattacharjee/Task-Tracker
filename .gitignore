@@ -5,3 +5,7 @@
 /backend/app/__pycache__/
 .env
 .env.*
+
+# Don't ignore the below files
+!.env.example
+!.env.*.example
