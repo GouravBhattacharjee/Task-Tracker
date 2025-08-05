@@ -1,4 +1,4 @@
-import axiosInstance from "./AxiosInstance";
+import AxiosInstance from "./AxiosInstance";
 
 export type ProjectModel = {
   project_id: number;
@@ -13,19 +13,19 @@ export type ProjectModel = {
 };
 
 export const fetchProjects = async () => {
-  const response = await axiosInstance.get(`/api/projects`);
+  const response = await AxiosInstance.get(`/api/projects`);
   return response.data;
 };
 
 export const fetchProjectByID = async (project_id: number) => {
-  const response = await axiosInstance.get(`/api/projects/${project_id}`);
+  const response = await AxiosInstance.get(`/api/projects/${project_id}`);
   return response.data;
 };
 
 export const createProject = async (
   payload: Omit<ProjectModel, "project_id" | "project_active">
 ) => {
-  const response = await axiosInstance.post(`/api/projects`, payload);
+  const response = await AxiosInstance.post(`/api/projects`, payload);
   return response.data;
 };
 
@@ -33,6 +33,6 @@ export const updateProject = async (
   payload: Partial<ProjectModel> &
     Required<Pick<ProjectModel, "project_id" | "modified_by_email">>
 ) => {
-  const response = await axiosInstance.post(`/api/update_project`, payload);
+  const response = await AxiosInstance.post(`/api/update_project`, payload);
   return response.data;
 };

@@ -132,9 +132,15 @@ def change_password(data: ChangePassword, session: Session = Depends(get_session
 
 
 @router.post("/logout")
-def logout(session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=[])) -> None:
+def logout(response: Response, session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=[])) -> None:
     current_time = datetime.now(timezone.utc).replace(microsecond=0)
     update_in_db(session, ReadUser, [{"user_id": jwt_user.user_id, "refresh_token": None, "modified_by_email": "system", "modified_on_date": current_time}])
+    response.delete_cookie(
+        key="refresh_token",
+        secure=True,
+        httponly=True,
+        samesite="Strict"
+    )
 
 
 @router.get("/users", response_model=list[FilteredReadUser])

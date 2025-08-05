@@ -1,4 +1,4 @@
-import axiosInstance from "./AxiosInstance";
+import AxiosInstance from "./AxiosInstance";
 
 export type TaskStatusModel = {
   task_status_id: number;
@@ -9,19 +9,19 @@ export type TaskStatusModel = {
 };
 
 export const fetchTaskStatuses = async () => {
-  const response = await axiosInstance.get(`/api/taskstatus`);
+  const response = await AxiosInstance.get(`/api/taskstatus`);
   return response.data;
 };
 
 export const fetchTaskStatusByID = async (task_status_id: number) => {
-  const response = await axiosInstance.get(`/api/taskstatus/${task_status_id}`);
+  const response = await AxiosInstance.get(`/api/taskstatus/${task_status_id}`);
   return response.data;
 };
 
 export const createTaskStatus = async (
   payload: Omit<TaskStatusModel, "task_status_id" | "task_status_active">
 ) => {
-  const response = await axiosInstance.post(`/api/taskstatus`, payload);
+  const response = await AxiosInstance.post(`/api/taskstatus`, payload);
   return response.data;
 };
 
@@ -29,6 +29,6 @@ export const updateTaskStatus = async (
   payload: Partial<TaskStatusModel> &
     Required<Pick<TaskStatusModel, "task_status_id" | "modified_by_email">>
 ) => {
-  const response = await axiosInstance.post(`/api/update_taskstatus`, payload);
+  const response = await AxiosInstance.post(`/api/update_taskstatus`, payload);
   return response.data;
 };

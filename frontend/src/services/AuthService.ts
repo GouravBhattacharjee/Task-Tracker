@@ -1,5 +1,5 @@
 import axios from "axios";
-import axiosInstance from "./AxiosInstance";
+import AxiosInstance from "./AxiosInstance";
 import { BACKEND_BASE_URL } from "../config";
 
 type LoginModel = {
@@ -34,7 +34,7 @@ export const userRegister = async (payload: RegisterModel) => {
 };
 
 export const userForgotPassword = async (payload: { email: string }) => {
-  const response = await axiosInstance.post(`/api/forgot-password`, payload);
+  const response = await AxiosInstance.post(`/api/forgot-password`, payload);
   return response.data;
 };
 
@@ -62,5 +62,7 @@ export const userGoogleLogin = async (token: string) => {
 };
 
 export const userLogout = async () => {
-  await axiosInstance.post(`/api/logout`);
+  await AxiosInstance.post(`/api/logout`, null, {
+    withCredentials: true,
+  });
 };
