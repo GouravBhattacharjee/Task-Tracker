@@ -12,9 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -22,18 +24,31 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # 3. Set up Node.js (lock Node version to avoid breaking builds)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      # 4. Build React app
       - name: Build React app
         working-directory: frontend
         run: |
-          export REACT_APP_BACKEND_BASE_URL=${{ secrets.BACKEND_ALB_URL }}
+          # Inject environment variables at build time
+          export REACT_APP_BACKEND_BASE_URL=${{ secrets.BACKEND_CLOUDFRONT_URL }}
           export REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          
           npm ci
           npm run build
 
+      # 5. Sync build to S3 (delete removed files)
       - name: Sync to S3
         run: |
-          aws s3 sync frontend/build/ s3://${{ secrets.S3_BUCKET }} --delete
+          aws s3 sync frontend/build/ s3://${{ secrets.S3_BUCKET }} --delete --exact-timestamps
 
+      # 6. Invalidate CloudFront cache
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
