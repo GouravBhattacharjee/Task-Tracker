@@ -189,7 +189,7 @@ def issue_tokens_and_set_cookie(response: Response, db_user: ReadUser, role_name
         value=refresh_token_cookie,
         httponly=True,
         secure=True,
-        samesite="Strict",
+        samesite="None",
         max_age=int(JWT_REFRESH_TOKEN_EXPIRE_DAYS) * 24 * 60 * 60
     )
 

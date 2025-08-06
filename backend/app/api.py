@@ -139,7 +139,7 @@ def logout(response: Response, session: Session = Depends(get_session), jwt_user
         key="refresh_token",
         secure=True,
         httponly=True,
-        samesite="Strict"
+        samesite="None"
     )
 
 
