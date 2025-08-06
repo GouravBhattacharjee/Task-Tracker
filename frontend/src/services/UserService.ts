@@ -26,6 +26,6 @@ export const updateUser = async (
   payload: Partial<UserModel> &
     Required<Pick<UserModel, "user_id" | "modified_by_email">>
 ) => {
-  const response = await AxiosInstance.post(`/api/update_user/`, payload);
+  const response = await AxiosInstance.post(`/api/update_user`, payload);
   return response.data;
 };
