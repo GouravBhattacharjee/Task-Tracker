@@ -145,7 +145,7 @@ def logout(response: Response, session: Session = Depends(get_session), jwt_user
 
 @router.get("/users", response_model=list[FilteredReadUser])
 def get_users(session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=["view_user"])) -> list[ReadUser] | None:
-    response = read_from_db(session, ReadUser, [ReadUser.user_active == 1])
+    response = read_from_db(session, ReadUser, [ReadUser.user_active == True])
     return response
 
 
@@ -179,7 +179,7 @@ def create_role(user: WriteRole, session: Session = Depends(get_session), jwt_us
 
 @router.get("/roles", response_model=list[ReadRole])
 def get_roles(session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=["view_role"])) -> list[ReadRole] | None:
-    response = read_from_db(session, ReadRole, [ReadRole.role_active == 1])
+    response = read_from_db(session, ReadRole, [ReadRole.role_active == True])
     return response
 
 
@@ -218,7 +218,7 @@ def create_project(project: WriteProject, session: Session = Depends(get_session
 
 @router.get("/projects", response_model=list[ReadProject])
 def get_projects(session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=["view_project"])) -> list[ReadProject] | None:
-    response = read_from_db(session, ReadProject, [ReadProject.project_active == 1])
+    response = read_from_db(session, ReadProject, [ReadProject.project_active == True])
     return response
 
 
@@ -241,7 +241,7 @@ def update_project(data: ReadProject, session: Session = Depends(get_session), j
 
 @router.get("/projects/{project_id}/tasks", response_model=list[ReadTask])
 def get_tasks_by_project_id(project_id: int, session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=["view_project", "view_task"])) -> list[ReadTask] | None:
-    response = read_from_db(session, ReadTask, [ReadTask.task_active == 1, ReadTask.project_id == project_id])
+    response = read_from_db(session, ReadTask, [ReadTask.task_active == True, ReadTask.project_id == project_id])
     return response
 
 
@@ -256,7 +256,7 @@ def create_task(task: WriteTask, session: Session = Depends(get_session), jwt_us
 
 @router.get("/tasks", response_model=list[ReadTask])
 def get_tasks(session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=["view_task"])) -> list[ReadTask] | None:
-    response = read_from_db(session, ReadTask, [ReadTask.task_active == 1])
+    response = read_from_db(session, ReadTask, [ReadTask.task_active == True])
     return response
 
 
@@ -299,7 +299,7 @@ def create_taskstatus(task: WriteTaskStatus, session: Session = Depends(get_sess
 
 @router.get("/taskstatus", response_model=list[ReadTaskStatus])
 def get_taskstatuses(session: Session = Depends(get_session), jwt_user: JWTPayloadBase = Security(verify_access_token, scopes=["view_taskstatus"])) -> list[ReadTaskStatus] | None:
-    response = read_from_db(session, ReadTaskStatus, [ReadTaskStatus.task_status_active == 1])
+    response = read_from_db(session, ReadTaskStatus, [ReadTaskStatus.task_status_active == True])
     return response
 
 
