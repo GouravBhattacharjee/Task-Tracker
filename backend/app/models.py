@@ -1,19 +1,6 @@
 from sqlmodel import SQLModel, Field, Relationship
-from pydantic import BaseModel, model_validator
 from datetime import date, datetime, timezone
-
-
-def blank_to_zero_validator(model_class: type[SQLModel], fields: list[str]) -> type[SQLModel]:
-    class ModelWithBlankToZero(model_class):
-        @model_validator(mode='before')
-        @classmethod
-        def _normalize_blank_to_zero(cls: type[SQLModel], values: dict) -> dict:
-            for field in fields:
-                if values.get(field) in ("", " ", None):
-                    values[field] = 0
-            return values
-
-    return ModelWithBlankToZero
+from pydantic import BaseModel
 
 
 def get_time() -> datetime:
@@ -171,6 +158,3 @@ ReadRole.model_rebuild()
 ReadTask.model_rebuild()
 ReadProject.model_rebuild()
 ReadTaskStatus.model_rebuild()
-
-# Below listed fields would default to zero if blank
-WriteRole = blank_to_zero_validator(WriteRole, ["role_name"])
