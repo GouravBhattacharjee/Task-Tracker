@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status, Header, Depends, Cookie, Response
 from jwt import encode, decode, ExpiredSignatureError, InvalidTokenError
-from models import ReadUser, JWTPayloadBase, JWTPayload
+from .models import ReadUser, JWTPayloadBase, JWTPayload
 from datetime import datetime, timedelta, timezone
 from sqlmodel import SQLModel, Session, select
 from fastapi.security import SecurityScopes
 from passlib.context import CryptContext
-from database import get_session
+from .database import get_session
 from dotenv import load_dotenv
 from os import getenv
 import ast
